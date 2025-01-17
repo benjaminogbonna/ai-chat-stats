@@ -10,7 +10,7 @@ def index(request):
     return render(request, 'main/index.html')
 
 
-def register(request):
+def signup(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -19,7 +19,7 @@ def register(request):
             return redirect('main:index')
     else:
         form = RegistrationForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'registration/signup.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
