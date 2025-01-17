@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header text-center bg-success text-white">
+            <h3>Send a Message</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="message" class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ request.user.first_name }} {{ request.user.last_name }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    {{ form.message }}
+                </div>
+                <button type="submit" class="btn btn-success w-100">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header text-center bg-success text-white">
+      <h3>Request Submitted</h3>
+    </div>
+    <div class="card-body">
+      <h4 class="text-center">Your message has been sent Successfully</h4>
+      <!-- <h2 class="text-center">{{ label }}</h2> -->
+      <div class="text-center mt-3">
+        <a href="{% url 'message'%}" class="btn btn-success">Submit Another Message</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
