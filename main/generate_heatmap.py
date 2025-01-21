@@ -7,7 +7,7 @@ import matplotlib.dates as mdates
 import matplotlib.patches as patches
 from datetime import datetime, timezone, timedelta
 
-from helper_functions import unzip_data
+from .helper_functions import unzip_data
 
 
 file = unzip_data('data/data.zip', 'data')

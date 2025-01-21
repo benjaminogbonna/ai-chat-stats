@@ -13,7 +13,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
+    # date_joined = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    data = models.FileField(upload_to='data/', default='')
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
@@ -26,3 +29,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            existing_file = CustomUser.objects.filter(pk=self.pk).first()
+            if existing_file and existing_file.data != self.data:
+                if existing_file.data:
+                    existing_file.data.delete(save=False)
+        super().save(*args, **kwargs)
+

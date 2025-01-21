@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -125,3 +126,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Auth user
 AUTH_USER_MODEL = "main.CustomUser"
 
+# for email and username log in
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'main.authentication.EmailAuthBackend',
+]
