@@ -2,8 +2,15 @@ import os
 import shutil
 import secrets
 import string
+import json
+import pytz
+import random
+import numpy as np
+from collections import Counter
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.utils.text import slugify
+from django.shortcuts import render, redirect, get_object_or_404
+from datetime import datetime, timezone, timedelta
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -22,9 +29,93 @@ def string_gen(x=15):
 def index(request):
     return render(request, 'main/index.html')
 
+
+def view_user_profile(request, slug):
+    user = get_object_or_404(CustomUser, slug=slug)
+    ltz = settings.TIME_ZONE
+    year=datetime.now().year
+    if user.data:
+        data = user.data
+        with open(f'{data}', 'r') as f:
+                convs = json.load(f)
+        convo_times = []
+        for conv in convs:
+            # Given Unix timestamp
+            unix_timestamp = conv['create_time']
+            # Convert to UTC datetime
+            utc_datetime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+            # Convert UTC datetime to local timezone
+            pt_datetime = utc_datetime.astimezone(pytz.timezone(ltz))
+            convo_times.append(pt_datetime)
+        just_dates = [convo.date() for convo in convo_times if convo.year == year]
+        date_counts = Counter(just_dates)
+        # Create a full year date range for the calendar
+        start_date = datetime(year, 1, 1).date()
+        end_date = datetime(year, 12, 31).date()
+        total_days = (end_date - start_date).days + 1
+        date_range = [start_date + timedelta(days=i) for i in range(total_days)]
+
+        # Prepare data for plotting
+        user_years = sorted(list(set(convo.year for convo in convo_times)), reverse=True)
+        data = []
+        for date in date_range:
+            week = ((date - start_date).days + start_date.weekday()) // 7
+            day_of_week = date.weekday()
+            count = date_counts.get(date, 0)
+            data.append((week, day_of_week, count))
+        context = {
+            'user': user,
+            'user_years': user_years,
+            'data': json.dumps(data)
+        }
+    return render(request, 'main/view_user_profile.html', context)
+
+
+def view_user_profile_year(request, slug, year=datetime.now().year):
+    user = get_object_or_404(CustomUser, slug=slug)
+    ltz = settings.TIME_ZONE
+    if user.data:
+        data = user.data
+        with open(f'{data}', 'r') as f:
+                convs = json.load(f)
+        convo_times = []
+        for conv in convs:
+            # Given Unix timestamp
+            unix_timestamp = conv['create_time']
+            # Convert to UTC datetime
+            utc_datetime = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
+            # Convert UTC datetime to local timezone
+            pt_datetime = utc_datetime.astimezone(pytz.timezone(ltz))
+            convo_times.append(pt_datetime)
+        just_dates = [convo.date() for convo in convo_times if convo.year == year]
+        date_counts = Counter(just_dates)
+        # Create a full year date range for the calendar
+        start_date = datetime(year, 1, 1).date()
+        end_date = datetime(year, 12, 31).date()
+        total_days = (end_date - start_date).days + 1
+        date_range = [start_date + timedelta(days=i) for i in range(total_days)]
+
+        # Prepare data for plotting
+        user_years = sorted(list(set(convo.year for convo in convo_times)), reverse=True)
+        data = []
+        for date in date_range:
+            week = ((date - start_date).days + start_date.weekday()) // 7
+            day_of_week = date.weekday()
+            count = date_counts.get(date, 0)
+            data.append((week, day_of_week, count))
+        context = {
+            'user': user,
+            'user_years': user_years,
+            'data': json.dumps(data),
+        }
+
+    return render(request, 'main/view_user_profile.html', context)
+
+
+
 @login_required
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def profile(request):
+def profile_settings(request):
     if request.method == 'POST':
         form = DataUploadForm(instance=request.user, data=request.POST, files=request.FILES)
         if form.is_valid():
@@ -39,7 +130,7 @@ def profile(request):
                 os.makedirs(tmp_fldr, exist_ok=True)
 
                 # Parse the document based on file extension
-                if data.name.endswith('.zip'):
+                if data.name.endswith('.zip') or data.content_type == 'application/zip':
                     unzip_data(data, tmp_fldr)
                     file = f'{tmp_fldr}/conversations.json'
                     new_file_name = f'{string_gen()}.json'
@@ -65,21 +156,23 @@ def profile(request):
 
 def signup(request):
     if request.user.is_authenticated:
-        return redirect('main:profile')
+        return redirect('main:index')
     else:
         if request.method == 'POST':
             form = RegistrationForm(request.POST)
             if form.is_valid():
-                user = form.save()
-                login(request, user)
-                return redirect('main:index')
+                new_user = form.save(commit=False)
+                new_user.slug = slugify(new_user.username)
+                new_user.save()
+                login(request, new_user, backend='django.contrib.auth.backends.ModelBackend')
+                return redirect('main:view_user_profile_year')
         else:
             form = RegistrationForm()
         return render(request, 'registration/signup.html', {'form': form})
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('main:profile')
+        return redirect('main:index')
     else:
         if request.method == 'POST':
             form = LoginForm(request.POST)
@@ -89,7 +182,7 @@ def login_view(request):
                 user = authenticate(request, username=username, password=password)
                 if user:
                     login(request, user)
-                    return redirect('main:profile')
+                    return redirect('main:view_user_profile_year')
         else:
             form = LoginForm()
         return render(request, 'registration/login.html', {'form': form})
@@ -97,3 +190,4 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('main:login')
+

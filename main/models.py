@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
@@ -15,8 +16,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     # date_joined = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
-    data = models.FileField(upload_to='data/', default='')
+    slug = models.SlugField(max_length=120, default='', unique=True)
+    data = models.FileField(upload_to='data/', default='', max_length=500)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
@@ -30,8 +31,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+    def get_absolute_url(self):
+        return reverse('main:view_user_profile',
+                       kwargs={
+                           'slug': self.slug,
+                       })
+
 
     def save(self, *args, **kwargs):
+        self.slug = self.username
         if self.pk:
             existing_file = CustomUser.objects.filter(pk=self.pk).first()
             if existing_file and existing_file.data != self.data:
