@@ -23,6 +23,10 @@
       "src": "/(.*)",
       "dest": "ai_chat_stats/wsgi.py"
     }
-  ]
-
+  ],
+  "functions": {
+    "api/**": {
+      "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
+    }
+  }
 }
