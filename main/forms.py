@@ -1,19 +1,19 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django import forms
-from .models import CustomUser
+from .models import User
 
 
 class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = '__all__'
 
 
 class CustomUserChangeForm(UserChangeForm):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = '__all__'
 
 
@@ -21,7 +21,7 @@ class CustomUserChangeForm(UserChangeForm):
 
 class RegistrationForm(UserCreationForm):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ['username', 'email', 'password1', 'password2']
         labels = {
             'username': '',
@@ -84,5 +84,5 @@ class LoginForm(forms.Form):
 
 class DataUploadForm(forms.ModelForm):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('data',)

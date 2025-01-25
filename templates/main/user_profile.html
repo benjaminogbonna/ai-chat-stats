@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ user.username|title}}{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="text-center">
+                <h1 class="mb-4">Your Chat History</h1>
+            </div>
+            <div class="heatmap-container overflow-auto border p-3 bg-light">
+                <div id="heatmap"></div>
+            </div>
+        </div>
+        <!-- Sidebar -->
+        <div class="col-lg-1">
+            <div class="sidebar">
+                <!-- <h5>Years</h5> -->
+                <ul class="list-group">
+                    {% for year in user_years %}
+                        <li class="list-group-item"><a href="{% url 'main:view_user_profile_year' user.slug year %}" class="year-link" data-year="{{ year }}">{{ year }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        const heatmapData = JSON.parse('{{ data|safe }}');
+        const slug = '{{ user.slug }}';
+    </script>
+    <script src="{% static 'js/heatmap.js' %}" defer></script>
+{% endblock %}

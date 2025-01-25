@@ -123,7 +123,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Auth user
-AUTH_USER_MODEL = "main.CustomUser"
+AUTH_USER_MODEL = "main.User"
 
 # for email and username log in
 AUTHENTICATION_BACKENDS = [

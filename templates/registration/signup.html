@@ -1,27 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}signup{% endblock %}
+{% block title %}Signup{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header text-center">
-                    <h3>Signup</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success btn-block">Signup</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-center">
-                    <p>Already have an account? <a href="{% url 'main:login' %}">Login</a></p>
-                </div>
+    <div class="card mx-auto" style="max-width: 400px;">
+        <div class="card-body">
+            <h2 class="card-title text-center">Sign Up</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-dark w-100">Sign Up</button>
+            </form>
+            <div class="card-footer text-center">
+                <p>Already have an account? <a href="{% url 'main:login' %}">Login</a></p>
             </div>
         </div>
     </div>

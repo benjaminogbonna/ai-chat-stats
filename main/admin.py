@@ -1,18 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser
+from .models import User
 
 
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
-    model = CustomUser
+    model = User
 
-    list_display = ('username', "email", 'name', 'date_joined', 'slug', "is_staff", "is_active",)
+    list_display = ('username', "email", 'name', 'total_convs', 'date_joined', "is_staff", "is_active",)
     list_filter = ("is_staff", "is_active",)
     fieldsets = (
-        (None, {"fields": ('username', "email", "password", 'name', 'slug')}),
+        (None, {"fields": ('username', "email", "password", 'name', 'slug', 'total_convs',)}),
         ("Permissions", {"fields": (
             "is_active", "is_staff", 'is_superuser', "groups", "user_permissions", 'date_joined', 'updated', 'last_login', 'data')}
          ),
@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
         (None, {
             "classes": ("wide",),
             "fields": (
-                'username', "email", 'slug', "password1", "password2", "is_active",
+                'username', "email", 'slug', "password1", "password2", "is_active", 'total_convs',
                 "groups", "user_permissions",
             )}),
     )
@@ -31,4 +31,4 @@ class CustomUserAdmin(UserAdmin):
     prepopulated_fields = {'slug': ('username',)}
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, CustomUserAdmin)

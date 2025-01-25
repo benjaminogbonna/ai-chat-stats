@@ -1,4 +1,4 @@
-from .models import CustomUser as User
+from .models import User
 
 class EmailAuthBackend(object):
     """

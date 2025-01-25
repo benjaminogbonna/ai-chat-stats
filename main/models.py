@@ -7,7 +7,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Abstr
 from .managers import CustomUserManager
 
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("email address"), unique=True)
     username = models.CharField(_("username"), max_length=150, unique=True)
     name = models.CharField(_("name"), max_length=150, blank=True)
@@ -17,7 +17,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # date_joined = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=120, default='', unique=True)
-    data = models.FileField(upload_to='data/', default='', max_length=500)
+    data = models.FileField(upload_to='data/', default='', null=True, max_length=500)
+    total_convs = models.IntegerField(default=0, null=True, blank=True)
+
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
@@ -41,7 +43,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         self.slug = self.username
         if self.pk:
-            existing_file = CustomUser.objects.filter(pk=self.pk).first()
+            existing_file = User.objects.filter(pk=self.pk).first()
             if existing_file and existing_file.data != self.data:
                 if existing_file.data:
                     existing_file.data.delete(save=False)
